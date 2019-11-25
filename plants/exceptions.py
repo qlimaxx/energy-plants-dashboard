@@ -1,0 +1,2 @@
+class NoAvailableDataError(Exception):
+    pass

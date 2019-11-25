@@ -1,0 +1,90 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" ng-app="PlantsDemo">
+
+<head>
+	<meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<title>Plants Demo</title>
+	<link rel="stylesheet" href="{% static 'plants/css/bootstrap.min.css' %}">
+	<link rel="stylesheet" href="{% static 'plants/css/jquery-ui.min.css' %}">
+  <script type="text/javascript">
+		window.PLANTS_URL = '{% url "plants:plants-list" %}';
+		window.REPORTS_URL = '{% url "plants:reports-list" %}';
+		window.MONITOR_URL = '{% url "plants:pull-data" %}';
+	</script>
+</head>
+
+<body ng-controller="mainCtrl" style="margin-top: 50px">
+	<div class="container">
+		<div class="row">
+			<h2>Plants</h2>
+			<form class="form-inline">
+				<label>Add new plant</label>
+				<input type="text" class="form-control" ng-model="newPlantName">
+				<button class="btn btn-primary" ng-click="createPlant(newPlantName)">Add</button>
+			</form><br>
+			<table class="table table-bordered">
+				<thead>
+					<tr>
+						<th scope="col">UUID</th>
+						<th scope="col">Name</th>
+						<th scope="col">Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="p in plants">
+						<td>{$ p.id $}</td>
+						<td>{$ p.name $}</td>
+						<td><button class="btn btn-sm btn-danger" ng-click="deletePlant(p.id)">Delete</button></td>
+					</tr>
+				</tbody>
+			</table>
+			<hr>
+			<h2>Datapoints</h2>
+			<form class="form-inline">
+				<select class="form-control" ng-model="monitor.plant">
+					<option value="">Select a plant</option>
+					<option ng-repeat="p in plants" value="{$ p.id $}">{$ p.name $}</option>
+				</select>
+				<input class="form-control" ui-date="datepickerOpts" ui-date-format="yy-mm-dd" ng-model="monitor.date_from">
+				<input class="form-control" ui-date="datepickerOpts" ui-date-format="yy-mm-dd" ng-model="monitor.date_to">
+				<button class="btn btn-primary" ng-click="updateData()" ng-disabled="monitorBtnDisabled">Update server data</button>
+			</form>
+			<hr>
+			<h2>Reports</h2>
+			<form class="form-inline">
+				<select class="form-control" ng-model="report.plant">
+					<option value="">Select a plant</option>
+					<option ng-repeat="p in plants" value="{$ p.id $}">{$ p.name $}</option>
+				</select>
+				<select class="form-control" ng-model="reportType" ng-init="reportType='energy'">
+					<option value="energy">Energy</option>
+					<option value="irradiation">Irradiation</option>
+				</select>
+				<input class="form-control" ui-date="datepickerOpts" ui-date-format="yy-mm-dd" ng-model="report.date_from">
+				<input class="form-control" ui-date="datepickerOpts" ui-date-format="yy-mm-dd" ng-model="report.date_to">
+				<button class="btn btn-primary" ng-click="updateChart()">Refresh</button>
+			</form><br>
+			<div class="row">
+				<div class="col-md-10 col-md-offset-1">
+					<canvas ng-show="chart.data" class="chart chart-bar"
+					chart-data="chart.data" chart-labels="chart.labels"
+					chart-series="chart.series" chart-options="chart.options"></canvas>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="{% static 'plants/js/jquery.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'plants/js/bootstrap.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'plants/js/Chart.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'plants/js/angular.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'plants/js/jquery-ui.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'plants/js/angular-ui.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'plants/js/angular-chart.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'plants/js/app.js' %}"></script>
+</body>
+
+</html>

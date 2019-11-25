@@ -1,0 +1,55 @@
+version: '3'
+services:
+  db:
+    image: postgres:11-alpine
+  redis:
+    image: redis:alpine
+  monitor:
+    image: palacios3mw/monitor
+  web:
+    build: .
+    command: dockerize -wait tcp://db:5432 -timeout 60s python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+    links:
+      - db
+  celery-worker:
+    build: .
+    command: celery -A projconf worker -l INFO
+    volumes:
+      - .:/code
+    depends_on:
+      - redis
+    links:
+      - redis
+  celery-beat:
+    build: .
+    command: celery -A projconf beat -l INFO
+    volumes:
+      - .:/code
+    depends_on:
+      - redis
+    links:
+      - redis
+  init:
+    build: .
+    command: python manage.py migrate
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+    links:
+      - db
+  test:
+    build: .
+    command: dockerize -wait tcp://db:5432 -timeout 60s python manage.py test
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+    links:
+      - db
